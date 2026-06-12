@@ -1,0 +1,7 @@
+name: missing-prompt-test
+description: Missing prompt for agent step
+steps:
+  - id: step1
+    depends_on: []
+    type: agent
+    description: Should require prompt

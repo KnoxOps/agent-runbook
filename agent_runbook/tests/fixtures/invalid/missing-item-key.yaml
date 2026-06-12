@@ -1,0 +1,11 @@
+name: missing-item-key-test
+description: Parallel enabled without item_key
+steps:
+  - id: step1
+    depends_on: []
+    type: inline
+    prompt: Step 1
+    parallel:
+      enabled: true
+      max_instances: 5
+      item_key: ""

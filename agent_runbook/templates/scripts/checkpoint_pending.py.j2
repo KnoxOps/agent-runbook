@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""List items that are still pending from a checkpoint JSONL file.
+
+Outputs JSON list of pending items to stdout.
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="List pending items from a checkpoint JSONL file"
+    )
+    parser.add_argument(
+        "--checkpoint", required=True, help="Path to checkpoint JSONL file"
+    )
+    parser.add_argument(
+        "--input",
+        help="Path to original input JSON (optional, for items not in checkpoint yet)",
+    )
+    parser.add_argument(
+        "--key", required=True, help="Item key field name (for deduplication)"
+    )
+    parser.add_argument(
+        "--count",
+        action="store_true",
+        help="Only print count, not full list",
+    )
+
+    args = parser.parse_args()
+
+    # Read checkpoint
+    checkpoint_path = Path(args.checkpoint)
+    if not checkpoint_path.exists():
+        print(f"Error: checkpoint file not found: {args.checkpoint}", file=sys.stderr)
+        sys.exit(1)
+
+    # Track processed keys and their latest status
+    processed_keys = {}
+    pending_items = []
+
+    try:
+        with open(checkpoint_path) as f:
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError as e:
+                    print(
+                        f"Error: invalid JSON on line {line_num}: {e}",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+
+                if "key" not in entry:
+                    print(
+                        f"Error: entry on line {line_num} missing 'key' field",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+
+                key = entry["key"]
+                status = entry.get("status", "unknown")
+
+                # Update latest status for this key
+                processed_keys[key] = status
+
+    except IOError as e:
+        print(f"Error: failed to read checkpoint file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Extract pending items
+    for key, status in processed_keys.items():
+        if status == "pending":
+            pending_items.append({"key": key, "status": status})
+
+    # If input file is provided, add items not yet in checkpoint
+    if args.input:
+        input_path = Path(args.input)
+        if not input_path.exists():
+            print(f"Error: input file not found: {args.input}", file=sys.stderr)
+            sys.exit(1)
+
+        try:
+            with open(input_path) as f:
+                data = json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"Error: invalid JSON in {args.input}: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        # Extract items array
+        if isinstance(data, list):
+            items = data
+        elif isinstance(data, dict):
+            items = None
+            for value in data.values():
+                if isinstance(value, list):
+                    items = value
+                    break
+            if items is None:
+                items = []
+        else:
+            items = []
+
+        # Add items not yet in checkpoint
+        for item in items:
+            if isinstance(item, dict) and args.key in item:
+                key = item[args.key]
+                if key not in processed_keys:
+                    pending_items.append(
+                        {"key": key, "status": "pending", **item}
+                    )
+
+    # Output
+    if args.count:
+        print(len(pending_items))
+    else:
+        print(json.dumps(pending_items))
+
+
+if __name__ == "__main__":
+    main()

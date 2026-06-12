@@ -1,0 +1,61 @@
+name: zombie-resource-scan
+description: >-
+  Scan cloud for zombie resources, classify, and generate recommendations
+
+input_params:
+  - name: run_dir
+    type: string
+    required: true
+    description: Workspace root directory
+  - name: connection_id
+    type: string
+    required: false
+    description: MCP connection ID for SSH verification
+
+steps:
+  - id: scan
+    depends_on: []
+    type: agent
+    description: Query billing API, get top N resources by cost
+    prompt_file: prompts/cost-ranking.agent.md
+    output:
+      - schema: schemas/scan-result.schema.json
+        file: scan_result.json
+    checkpoint: scan_checkpoint.jsonl
+
+  - id: classify
+    type: inline
+    description: Classify each resource by utilization pattern
+    prompt: |
+      Read scan_result.json. For each resource:
+      - If CPU avg < 10% AND memory avg < 20% → mark as "idle"
+      - If attached storage has 30d IO = 0 → mark as "unused-storage"
+      - Otherwise → mark as "active"
+      Write results to classification.json.
+    input:
+      - schema: schemas/scan-result.schema.json
+        from_step: scan
+    output:
+      - schema: schemas/classification.schema.json
+        file: classification.json
+    depends_on:
+      - scan
+    checkpoint: classify_checkpoint.jsonl
+
+  - id: recommend
+    type: agent
+    description: Generate optimization recommendation per resource
+    prompt_file: prompts/cost-advisor.agent.md
+    input:
+      - schema: schemas/classification.schema.json
+        from_step: classify
+    output:
+      - schema: schemas/recommendation.schema.json
+        file: recommendations.json
+    depends_on:
+      - classify
+    parallel:
+      enabled: true
+      max_instances: 5
+      item_key: resource_id
+    checkpoint: recommend_checkpoint.jsonl

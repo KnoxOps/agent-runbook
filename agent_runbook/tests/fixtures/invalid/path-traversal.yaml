@@ -1,0 +1,7 @@
+name: path-traversal-test
+description: Path traversal in prompt
+steps:
+  - id: step1
+    depends_on: []
+    type: agent
+    prompt: ../../../etc/passwd

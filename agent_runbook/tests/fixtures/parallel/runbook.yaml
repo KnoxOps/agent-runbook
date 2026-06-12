@@ -1,0 +1,44 @@
+name: parallel-execution-test
+description: Test parallel step numbering and annotations
+
+steps:
+  - id: init
+    depends_on: []
+    type: inline
+    description: Initialize the workflow
+    prompt: |
+      Initialize workflow resources and data structures.
+
+  - id: process_a
+    type: inline
+    description: Process data set A in parallel
+    prompt: |
+      Process data set A.
+    depends_on:
+      - init
+
+  - id: process_b
+    type: inline
+    description: Process data set B in parallel
+    prompt: |
+      Process data set B.
+    depends_on:
+      - init
+
+  - id: process_c
+    type: inline
+    description: Process data set C in parallel
+    prompt: |
+      Process data set C.
+    depends_on:
+      - init
+
+  - id: aggregate
+    type: inline
+    description: Aggregate results from all processes
+    prompt: |
+      Aggregate results from A, B, and C.
+    depends_on:
+      - process_a
+      - process_b
+      - process_c

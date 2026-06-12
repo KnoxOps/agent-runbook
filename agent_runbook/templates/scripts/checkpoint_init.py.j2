@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Initialize a checkpoint JSONL file from an input JSON file.
+
+All items are marked as "pending" initially.
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Initialize a checkpoint JSONL file from input JSON"
+    )
+    parser.add_argument("--input", required=True, help="Path to input JSON file")
+    parser.add_argument(
+        "--key", required=True, help="Field name to use as item identifier"
+    )
+    parser.add_argument(
+        "--output", required=True, help="Path to output checkpoint JSONL file"
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Print progress information"
+    )
+
+    args = parser.parse_args()
+
+    # Read input JSON
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"Error: input file not found: {args.input}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        with open(input_path) as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"Error: invalid JSON in {args.input}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Extract items array
+    if isinstance(data, list):
+        items = data
+    elif isinstance(data, dict):
+        # Try to find an array in the dict
+        items = None
+        for value in data.values():
+            if isinstance(value, list):
+                items = value
+                break
+        if items is None:
+            print(
+                "Error: input JSON must be an array or contain an array",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+    else:
+        print(
+            "Error: input JSON must be an array or object containing an array",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Write checkpoint JSONL
+    output_path = Path(args.output)
+    try:
+        with open(output_path, "w") as f:
+            for i, item in enumerate(items):
+                if not isinstance(item, dict):
+                    print(
+                        f"Error: item {i} is not a dict: {type(item)}",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+
+                if args.key not in item:
+                    print(
+                        f"Error: item {i} missing key field '{args.key}'",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+
+                key_value = item[args.key]
+                checkpoint_entry = {"key": key_value, "status": "pending"}
+                f.write(json.dumps(checkpoint_entry) + "\n")
+
+                if args.verbose:
+                    print(f"Initialized item {i}: {key_value}")
+
+        if args.verbose:
+            print(f"Created checkpoint file: {output_path}")
+            print(f"Total items: {len(items)}")
+
+    except IOError as e:
+        print(f"Error: failed to write checkpoint file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

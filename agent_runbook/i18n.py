@@ -1,0 +1,440 @@
+"""Internationalization (i18n) support for agent-runbook generator.
+
+Provides translation maps for all framework-generated text.
+Usage: t("key", lang="en", **format_kwargs)
+"""
+
+TRANSLATIONS: dict[str, dict[str, str]] = {
+    "en": {
+        "execution_flow": "Execution Flow",
+        "overview": "Overview",
+        "input_params": "Input Parameters",
+        "error_handling": "Error Handling",
+        "step_header": "Step {order}: {id}",
+        "branch_decision_header": "Branch Decision: {id}",
+        "type_label": "Type:",
+        "description_label": "Description:",
+        "input_files": "Input Files",
+        "execution": "Execution",
+        "output_files": "Output Files",
+        "schema_label": "Schema:",
+        "file_label": "File:",
+        "follow_instructions": "Follow these instructions:",
+        "launch_agent": "Launch an independent agent with the following prompt file:",
+        "dispatch_instruction": "Dispatch instruction:",
+        "prompt_file": "Prompt file:",
+        "agent_workflow": "Agent workflow:",
+        "execute_command": "Execute the following command:",
+        "progress_tracking": "Progress Tracking",
+        "progress_instruction": "After completing this step, update `task_context.json`:",
+        "progress_set_step": "Set `current_step_id` to",
+        "progress_set_status": "Set `steps.{step_id}` to",
+        "task_context": "Task Context",
+        "task_context_init": "Before starting execution, initialize `task_context.json`:",
+        "task_context_update": (
+            "Update this file after each step completes. "
+            'On error, set step status to `"failed"` and overall `status` to `"failed"`.'
+        ),
+        "parallel_note": "Step {o1} ({id1}) and Step {o2} ({id2}) must run in parallel.",
+        "parallel_note_multi": "{steps} must run in parallel.",
+        "note_label": "Note",
+        "step_label": "Step {order}",
+        "quality_check_blocking": "BLOCKING gate",
+        "quality_check_non_blocking": "non-blocking (parallel with next step)",
+        "quality_check_heading": "Quality Check",
+        "quality_check_auto_desc": (
+            "Auto-generated quality check for {parent_id} — "
+            "validates output quality ({blocking_label})"
+        ),
+        "qc_blocking_note": "THIS IS A BLOCKING GATE: downstream steps must not proceed until this quality check passes (result: passed).",
+        "qc_non_blocking_note": "This check is non-blocking: execution proceeds regardless of result, but warnings are logged.",
+                "check_rules": "Check rules:",
+"from_step": "from Step {step_id}",
+    },
+    "zh": {
+        "execution_flow": "执行流程",
+        "overview": "概述",
+        "input_params": "输入参数",
+        "error_handling": "错误处理",
+        "step_header": "步骤 {order}: {id}",
+        "branch_decision_header": "分支决策: {id}",
+        "type_label": "类型:",
+        "description_label": "描述:",
+        "input_files": "输入文件",
+        "execution": "执行",
+        "output_files": "输出文件",
+        "schema_label": "Schema:",
+        "file_label": "文件:",
+        "follow_instructions": "按以下指令处理:",
+        "launch_agent": "启动独立 agent，以以下文件为 prompt:",
+        "dispatch_instruction": "分派指令:",
+        "prompt_file": "Prompt 文件:",
+        "agent_workflow": "Agent 工作流:",
+        "execute_command": "执行以下命令:",
+        "progress_tracking": "进度追踪",
+        "progress_instruction": "完成本步骤后，更新 `task_context.json`:",
+        "progress_set_step": "设置 `current_step_id` 为",
+        "progress_set_status": "设置 `steps.{step_id}` 为",
+        "task_context": "任务上下文",
+        "task_context_init": "开始执行前，初始化 `task_context.json`:",
+        "task_context_update": (
+            "每个步骤完成后更新此文件。"
+            '出错时将步骤状态设为 `"failed"`，整体 `status` 设为 `"failed"`。'
+        ),
+        "parallel_note": "步骤 {o1} ({id1}) 和步骤 {o2} ({id2}) 必须并行执行。",
+        "parallel_note_multi": "{steps} 必须并行执行。",
+        "note_label": "注意",
+        "step_label": "步骤 {order}",
+        "quality_check_blocking": "阻塞门禁",
+        "quality_check_non_blocking": "非阻塞（与下一步并行）",
+        "quality_check_heading": "质量检查",
+        "quality_check_auto_desc": (
+            "{parent_id} 的自动质量检查 — "
+            "分派 @supervisor 验证输出质量（{blocking_label}）"
+        ),
+        "qc_blocking_note": "这是阻塞门禁：下游步骤必须等待此质量检查通过（结果: passed）后方可继续。",
+        "qc_non_blocking_note": "此检查非阻塞：无论结果如何都会继续执行，但会记录警告。",
+                "check_rules": "检查规则:",
+"from_step": "来自步骤 {step_id}",
+    },
+    "ja": {
+        "execution_flow": "実行フロー",
+        "overview": "概要",
+        "input_params": "入力パラメータ",
+        "error_handling": "エラーハンドリング",
+        "step_header": "ステップ {order}: {id}",
+        "branch_decision_header": "分岐判断: {id}",
+        "type_label": "タイプ:",
+        "description_label": "説明:",
+        "input_files": "入力ファイル",
+        "execution": "実行",
+        "output_files": "出力ファイル",
+        "schema_label": "スキーマ:",
+        "file_label": "ファイル:",
+        "follow_instructions": "次の手順に従ってください:",
+        "launch_agent": "次のプロンプトファイルで独立エージェントを起動:",
+        "dispatch_instruction": "ディスパッチ指示:",
+        "prompt_file": "プロンプトファイル:",
+        "agent_workflow": "エージェントワークフロー:",
+        "execute_command": "次のコマンドを実行:",
+        "progress_tracking": "進捗トラッキング",
+        "progress_instruction": "このステップの完了後、`task_context.json` を更新:",
+        "progress_set_step": "`current_step_id` を次に設定",
+        "progress_set_status": "`steps.{step_id}` を次に設定",
+        "task_context": "タスクコンテキスト",
+        "task_context_init": "実行開始前に `task_context.json` を初期化:",
+        "task_context_update": (
+            "各ステップ完了後にこのファイルを更新。"
+            'エラー時はステップ状態を `"failed"`、全体 `status` を `"failed"` に設定。'
+        ),
+        "parallel_note": "ステップ {o1} ({id1}) とステップ {o2} ({id2}) は並列実行する必要があります。",
+        "parallel_note_multi": "{steps} は並列実行する必要があります。",
+        "note_label": "注意",
+        "step_label": "ステップ {order}",
+        "quality_check_blocking": "ブロッキングゲート",
+        "quality_check_non_blocking": "非ブロッキング（次のステップと並列）",
+        "quality_check_heading": "品質チェック",
+        "quality_check_auto_desc": (
+            "{parent_id} の自動品質チェック — "
+            "@supervisor にディスパッチして出力品質を検証（{blocking_label}）"
+        ),
+        "qc_blocking_note": "これはブロッキングゲートです：この品質チェックが合格（result: passed）するまで後続ステップは進行できません。",
+        "qc_non_blocking_note": "このチェックは非ブロッキングです：結果に関わらず実行は継続されますが、警告が記録されます。",
+                "check_rules": "チェックルール:",
+"from_step": "ステップ {step_id} から",
+    },
+    "ko": {
+        "execution_flow": "실행 흐름",
+        "overview": "개요",
+        "input_params": "입력 매개변수",
+        "error_handling": "오류 처리",
+        "step_header": "단계 {order}: {id}",
+        "branch_decision_header": "분기 결정: {id}",
+        "type_label": "유형:",
+        "description_label": "설명:",
+        "input_files": "입력 파일",
+        "execution": "실행",
+        "output_files": "출력 파일",
+        "schema_label": "스키마:",
+        "file_label": "파일:",
+        "follow_instructions": "다음 지침을 따르세요:",
+        "launch_agent": "다음 프롬프트 파일로 독립 에이전트 실행:",
+        "dispatch_instruction": "디스패치 지침:",
+        "prompt_file": "프롬프트 파일:",
+        "agent_workflow": "에이전트 워크플로우:",
+        "execute_command": "다음 명령을 실행하세요:",
+        "progress_tracking": "진행 상황 추적",
+        "progress_instruction": "이 단계를 완료한 후 `task_context.json` 업데이트:",
+        "progress_set_step": "`current_step_id` 설정",
+        "progress_set_status": "`steps.{step_id}` 설정",
+        "task_context": "작업 컨텍스트",
+        "task_context_init": "실행 시작 전 `task_context.json` 초기화:",
+        "task_context_update": (
+            "각 단계 완료 후 이 파일을 업데이트하세요. "
+            '오류 발생 시 단계 상태를 `"failed"`로, 전체 `status`를 `"failed"`로 설정하세요.'
+        ),
+        "parallel_note": "단계 {o1} ({id1})과 단계 {o2} ({id2})는 병렬로 실행해야 합니다.",
+        "parallel_note_multi": "{steps}는 병렬로 실행해야 합니다.",
+        "note_label": "참고",
+        "step_label": "단계 {order}",
+        "quality_check_blocking": "차단 게이트",
+        "quality_check_non_blocking": "비차단 (다음 단계와 병렬)",
+        "quality_check_heading": "품질 검사",
+        "quality_check_auto_desc": (
+            "{parent_id}의 자동 품질 검사 — "
+            "@supervisor에 디스패치하여 출력 품질 검증 ({blocking_label})"
+        ),
+        "qc_blocking_note": "이것은 차단 게이트입니다: 이 품질 검사가 통과(결과: passed)될 때까지 하위 단계가 진행되지 않습니다.",
+        "qc_non_blocking_note": "이 검사는 비차단입니다: 결과에 관계없이 실행이 계속되지만 경고가 기록됩니다.",
+                "check_rules": "검사 규칙:",
+"from_step": "단계 {step_id}에서",
+    },
+    "es": {
+        "execution_flow": "Flujo de Ejecución",
+        "overview": "Resumen",
+        "input_params": "Parámetros de Entrada",
+        "error_handling": "Manejo de Errores",
+        "step_header": "Paso {order}: {id}",
+        "branch_decision_header": "Decisión de Rama: {id}",
+        "type_label": "Tipo:",
+        "description_label": "Descripción:",
+        "input_files": "Archivos de Entrada",
+        "execution": "Ejecución",
+        "output_files": "Archivos de Salida",
+        "schema_label": "Esquema:",
+        "file_label": "Archivo:",
+        "follow_instructions": "Siga estas instrucciones:",
+        "launch_agent": "Inicie un agente independiente con el siguiente archivo de prompt:",
+        "dispatch_instruction": "Instrucción de despacho:",
+        "prompt_file": "Archivo de prompt:",
+        "agent_workflow": "Flujo de trabajo del agente:",
+        "execute_command": "Ejecute el siguiente comando:",
+        "progress_tracking": "Seguimiento de Progreso",
+        "progress_instruction": "Después de completar este paso, actualice `task_context.json`:",
+        "progress_set_step": "Establezca `current_step_id` a",
+        "progress_set_status": "Establezca `steps.{step_id}` a",
+        "task_context": "Contexto de la Tarea",
+        "task_context_init": "Antes de comenzar la ejecución, inicialice `task_context.json`:",
+        "task_context_update": (
+            "Actualice este archivo después de cada paso. "
+            'En caso de error, establezca el estado del paso a `"failed"` y el `status` general a `"failed"`.'
+        ),
+        "parallel_note": "El Paso {o1} ({id1}) y el Paso {o2} ({id2}) deben ejecutarse en paralelo.",
+        "parallel_note_multi": "{steps} deben ejecutarse en paralelo.",
+        "note_label": "Nota",
+        "step_label": "Paso {order}",
+        "quality_check_blocking": "puerta BLOQUEANTE",
+        "quality_check_non_blocking": "no bloqueante (paralelo con el siguiente paso)",
+        "quality_check_heading": "Control de Calidad",
+        "quality_check_auto_desc": (
+            "Control de calidad automático para {parent_id} — "
+            "despacha @supervisor para verificar la calidad de salida ({blocking_label})"
+        ),
+        "qc_blocking_note": "ESTA ES UNA PUERTA BLOQUEANTE: los pasos posteriores no deben continuar hasta que este control de calidad se apruebe (resultado: passed).",
+        "qc_non_blocking_note": "Este control es no bloqueante: la ejecución continúa independientemente del resultado, pero se registran advertencias.",
+                "check_rules": "Reglas de verificación:",
+"from_step": "del Paso {step_id}",
+    },
+    "pt": {
+        "execution_flow": "Fluxo de Execução",
+        "overview": "Visão Geral",
+        "input_params": "Parâmetros de Entrada",
+        "error_handling": "Tratamento de Erros",
+        "step_header": "Etapa {order}: {id}",
+        "branch_decision_header": "Decisão de Ramificação: {id}",
+        "type_label": "Tipo:",
+        "description_label": "Descrição:",
+        "input_files": "Arquivos de Entrada",
+        "execution": "Execução",
+        "output_files": "Arquivos de Saída",
+        "schema_label": "Esquema:",
+        "file_label": "Arquivo:",
+        "follow_instructions": "Siga estas instruções:",
+        "launch_agent": "Inicie um agente independente com o seguinte arquivo de prompt:",
+        "dispatch_instruction": "Instrução de despacho:",
+        "prompt_file": "Arquivo de prompt:",
+        "agent_workflow": "Fluxo de trabalho do agente:",
+        "execute_command": "Execute o seguinte comando:",
+        "progress_tracking": "Acompanhamento de Progresso",
+        "progress_instruction": "Após concluir esta etapa, atualize `task_context.json`:",
+        "progress_set_step": "Defina `current_step_id` como",
+        "progress_set_status": "Defina `steps.{step_id}` como",
+        "task_context": "Contexto da Tarefa",
+        "task_context_init": "Antes de iniciar a execução, inicialize `task_context.json`:",
+        "task_context_update": (
+            "Atualize este arquivo após cada etapa. "
+            'Em caso de erro, defina o status da etapa como `"failed"` e o `status` geral como `"failed"`.'
+        ),
+        "parallel_note": "A Etapa {o1} ({id1}) e a Etapa {o2} ({id2}) devem ser executadas em paralelo.",
+        "parallel_note_multi": "{steps} devem ser executadas em paralelo.",
+        "note_label": "Nota",
+        "step_label": "Etapa {order}",
+        "quality_check_blocking": "portão BLOQUEANTE",
+        "quality_check_non_blocking": "não bloqueante (paralelo com a próxima etapa)",
+        "quality_check_heading": "Verificação de Qualidade",
+        "quality_check_auto_desc": (
+            "Verificação de qualidade automática para {parent_id} — "
+            "despacha @supervisor para verificar a qualidade da saída ({blocking_label})"
+        ),
+        "qc_blocking_note": "ESTE É UM PORTÃO BLOQUEANTE: as etapas subsequentes não devem prosseguir até que esta verificação de qualidade seja aprovada (resultado: passed).",
+        "qc_non_blocking_note": "Esta verificação é não bloqueante: a execução continua independentemente do resultado, mas avisos são registrados.",
+                "check_rules": "Regras de verificação:",
+"from_step": "da Etapa {step_id}",
+    },
+    "fr": {
+        "execution_flow": "Flux d'Exécution",
+        "overview": "Aperçu",
+        "input_params": "Paramètres d'Entrée",
+        "error_handling": "Gestion des Erreurs",
+        "step_header": "Étape {order} : {id}",
+        "branch_decision_header": "Décision de Branchement : {id}",
+        "type_label": "Type :",
+        "description_label": "Description :",
+        "input_files": "Fichiers d'Entrée",
+        "execution": "Exécution",
+        "output_files": "Fichiers de Sortie",
+        "schema_label": "Schéma :",
+        "file_label": "Fichier :",
+        "follow_instructions": "Suivez ces instructions :",
+        "launch_agent": "Lancez un agent indépendant avec le fichier de prompt suivant :",
+        "dispatch_instruction": "Instruction de répartition :",
+        "prompt_file": "Fichier de prompt :",
+        "agent_workflow": "Flux de travail de l'agent :",
+        "execute_command": "Exécutez la commande suivante :",
+        "progress_tracking": "Suivi de Progression",
+        "progress_instruction": "Après avoir terminé cette étape, mettez à jour `task_context.json` :",
+        "progress_set_step": "Définissez `current_step_id` sur",
+        "progress_set_status": "Définissez `steps.{step_id}` sur",
+        "task_context": "Contexte de la Tâche",
+        "task_context_init": "Avant de commencer l'exécution, initialisez `task_context.json` :",
+        "task_context_update": (
+            "Mettez à jour ce fichier après chaque étape. "
+            'En cas d\'erreur, définissez le statut de l\'étape sur `"failed"` et le `status` global sur `"failed"`.'
+        ),
+        "parallel_note": "L'Étape {o1} ({id1}) et l'Étape {o2} ({id2}) doivent s'exécuter en parallèle.",
+        "parallel_note_multi": "{steps} doivent s'exécuter en parallèle.",
+        "note_label": "Remarque",
+        "step_label": "Étape {order}",
+        "quality_check_blocking": "porte BLOQUANTE",
+        "quality_check_non_blocking": "non bloquant (parallèle avec l'étape suivante)",
+        "quality_check_heading": "Contrôle Qualité",
+        "quality_check_auto_desc": (
+            "Contrôle qualité automatique pour {parent_id} — "
+            "dépêche @supervisor pour vérifier la qualité de sortie ({blocking_label})"
+        ),
+        "qc_blocking_note": "CECI EST UNE PORTE BLOQUANTE : les étapes en aval ne doivent pas continuer tant que ce contrôle qualité n'est pas réussi (résultat : passed).",
+        "qc_non_blocking_note": "Ce contrôle est non bloquant : l'exécution se poursuit quel que soit le résultat, mais des avertissements sont enregistrés.",
+                "check_rules": "Règles de vérification :",
+"from_step": "de l'Étape {step_id}",
+    },
+    "de": {
+        "execution_flow": "Ausführungsablauf",
+        "overview": "Übersicht",
+        "input_params": "Eingabeparameter",
+        "error_handling": "Fehlerbehandlung",
+        "step_header": "Schritt {order}: {id}",
+        "branch_decision_header": "Verzweigungsentscheidung: {id}",
+        "type_label": "Typ:",
+        "description_label": "Beschreibung:",
+        "input_files": "Eingabedateien",
+        "execution": "Ausführung",
+        "output_files": "Ausgabedateien",
+        "schema_label": "Schema:",
+        "file_label": "Datei:",
+        "follow_instructions": "Befolgen Sie diese Anweisungen:",
+        "launch_agent": "Starten Sie einen unabhängigen Agenten mit der folgenden Prompt-Datei:",
+        "dispatch_instruction": "Dispatch-Anweisung:",
+        "prompt_file": "Prompt-Datei:",
+        "agent_workflow": "Agent-Workflow:",
+        "execute_command": "Führen Sie folgenden Befehl aus:",
+        "progress_tracking": "Fortschrittsverfolgung",
+        "progress_instruction": "Aktualisieren Sie nach Abschluss dieses Schritts `task_context.json`:",
+        "progress_set_step": "Setzen Sie `current_step_id` auf",
+        "progress_set_status": "Setzen Sie `steps.{step_id}` auf",
+        "task_context": "Aufgabenkontext",
+        "task_context_init": "Initialisieren Sie vor der Ausführung `task_context.json`:",
+        "task_context_update": (
+            "Aktualisieren Sie diese Datei nach jedem Schritt. "
+            'Setzen Sie bei Fehlern den Schrittstatus auf `"failed"` und den gesamten `status` auf `"failed"`.'
+        ),
+        "parallel_note": "Schritt {o1} ({id1}) und Schritt {o2} ({id2}) müssen parallel ausgeführt werden.",
+        "parallel_note_multi": "{steps} müssen parallel ausgeführt werden.",
+        "note_label": "Hinweis",
+        "step_label": "Schritt {order}",
+        "quality_check_blocking": "BLOCKIERENDES Gate",
+        "quality_check_non_blocking": "nicht blockierend (parallel zum nächsten Schritt)",
+        "quality_check_heading": "Qualitätsprüfung",
+        "quality_check_auto_desc": (
+            "Automatische Qualitätsprüfung für {parent_id} — "
+            "dispatcht @supervisor zur Überprüfung der Ausgabequalität ({blocking_label})"
+        ),
+        "qc_blocking_note": "DIES IST EIN BLOCKIERENDES GATE: nachfolgende Schritte dürfen erst fortgesetzt werden, wenn diese Qualitätsprüfung bestanden ist (Ergebnis: passed).",
+        "qc_non_blocking_note": "Diese Prüfung ist nicht blockierend: die Ausführung wird unabhängig vom Ergebnis fortgesetzt, aber Warnungen werden protokolliert.",
+                "check_rules": "Prüfregeln:",
+"from_step": "aus Schritt {step_id}",
+    },
+    "ru": {
+        "execution_flow": "Поток Выполнения",
+        "overview": "Обзор",
+        "input_params": "Входные Параметры",
+        "error_handling": "Обработка Ошибок",
+        "step_header": "Шаг {order}: {id}",
+        "branch_decision_header": "Решение о Ветвлении: {id}",
+        "type_label": "Тип:",
+        "description_label": "Описание:",
+        "input_files": "Входные Файлы",
+        "execution": "Выполнение",
+        "output_files": "Выходные Файлы",
+        "schema_label": "Схема:",
+        "file_label": "Файл:",
+        "follow_instructions": "Следуйте этим инструкциям:",
+        "launch_agent": "Запустите независимого агента со следующим файлом промпта:",
+        "dispatch_instruction": "Инструкция по отправке:",
+        "prompt_file": "Файл промпта:",
+        "agent_workflow": "Рабочий процесс агента:",
+        "execute_command": "Выполните следующую команду:",
+        "progress_tracking": "Отслеживание Прогресса",
+        "progress_instruction": "После завершения этого шага обновите `task_context.json`:",
+        "progress_set_step": "Установите `current_step_id` в",
+        "progress_set_status": "Установите `steps.{step_id}` в",
+        "task_context": "Контекст Задачи",
+        "task_context_init": "Перед началом выполнения инициализируйте `task_context.json`:",
+        "task_context_update": (
+            "Обновляйте этот файл после каждого шага. "
+            'При ошибке установите статус шага в `"failed"` и общий `status` в `"failed"`.'
+        ),
+        "parallel_note": "Шаг {o1} ({id1}) и Шаг {o2} ({id2}) должны выполняться параллельно.",
+        "parallel_note_multi": "{steps} должны выполняться параллельно.",
+        "note_label": "Примечание",
+        "step_label": "Шаг {order}",
+        "quality_check_blocking": "БЛОКИРУЮЩИЙ шлюз",
+        "quality_check_non_blocking": "неблокирующий (параллельно со следующим шагом)",
+        "quality_check_heading": "Проверка Качества",
+        "quality_check_auto_desc": (
+            "Автоматическая проверка качества для {parent_id} — "
+            "отправляет @supervisor для проверки качества вывода ({blocking_label})"
+        ),
+        "qc_blocking_note": "ЭТО БЛОКИРУЮЩИЙ ШЛЮЗ: последующие шаги не должны выполняться, пока эта проверка качества не будет пройдена (результат: passed).",
+        "qc_non_blocking_note": "Эта проверка неблокирующая: выполнение продолжается независимо от результата, но предупреждения регистрируются.",
+                "check_rules": "Правила проверки:",
+"from_step": "из Шага {step_id}",
+    },
+}
+
+
+def t(key: str, lang: str = "en", **kwargs: str) -> str:
+    """Get translation for key in given language. Falls back to English if key missing.
+
+    Args:
+        key: The translation key to look up.
+        lang: Language code ("en", "zh", "ja", "ko", "es", "pt", "fr", "de", "ru"). Unknown languages fall back to "en".
+        **kwargs: Format arguments applied to the translated string.
+
+    Returns:
+        Translated (and optionally formatted) string.
+    """
+    translations = TRANSLATIONS.get(lang, TRANSLATIONS["en"])
+    text = translations.get(key, TRANSLATIONS["en"].get(key, key))
+    if kwargs:
+        text = text.format(**kwargs)
+    return text

@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Mark a completed item in a checkpoint JSONL file.
+
+Appends a new line to the checkpoint with status "done" and a timestamp.
+"""
+
+import argparse
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Mark an item as completed in a checkpoint JSONL file"
+    )
+    parser.add_argument(
+        "--checkpoint", required=True, help="Path to existing checkpoint JSONL file"
+    )
+    parser.add_argument(
+        "--item", required=True, help="JSON string of the completed item"
+    )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Print progress information"
+    )
+
+    args = parser.parse_args()
+
+    # Parse item JSON
+    try:
+        item_data = json.loads(args.item)
+    except json.JSONDecodeError as e:
+        print(f"Error: invalid JSON in --item: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if not isinstance(item_data, dict):
+        print("Error: --item must be a JSON object", file=sys.stderr)
+        sys.exit(1)
+
+    # Verify checkpoint file exists
+    checkpoint_path = Path(args.checkpoint)
+    if not checkpoint_path.exists():
+        print(f"Error: checkpoint file not found: {args.checkpoint}", file=sys.stderr)
+        sys.exit(1)
+
+    # Create done entry
+    done_entry = {
+        **item_data,
+        "status": "done",
+        "completed_at": datetime.utcnow().isoformat() + "Z",
+    }
+
+    # Append to checkpoint
+    try:
+        with open(checkpoint_path, "a") as f:
+            f.write(json.dumps(done_entry) + "\n")
+
+        if args.verbose:
+            print(f"Marked item as done: {json.dumps(done_entry)}")
+
+    except IOError as e:
+        print(f"Error: failed to write to checkpoint file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

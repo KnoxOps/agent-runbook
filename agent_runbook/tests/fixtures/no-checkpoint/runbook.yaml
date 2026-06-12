@@ -1,0 +1,9 @@
+name: no-checkpoint-test
+description: A simple fixture with no checkpoint steps, for verifying scripts dir is not created
+steps:
+  - id: step1
+    depends_on: []
+    type: inline
+    description: A simple inline step
+    prompt: |
+      Do something simple.

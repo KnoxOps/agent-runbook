@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Wrapper around agent-runbook CLI for skill directory convention.
+
+Convention: <skill-root>/runbook.yaml
+Output:     <skill-root>/skills/
+"""
+
+import subprocess
+import sys
+from pathlib import Path
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        print("Usage: gen-skill <runbook.yaml> [--lang zh|en]", file=sys.stderr)
+        sys.exit(1)
+
+    runbook = Path(sys.argv[1]).resolve()
+    output = runbook.parent / "skills"
+    rest = sys.argv[2:]
+
+    cmd = [sys.executable, "-m", "agent_runbook", "generate", str(runbook), "-o", str(output), *rest]
+    subprocess.run(cmd, check=True)
+
+    # Copy prompts/ from runbook dir to output
+    prompts_src = runbook.parent / "prompts"
+    prompts_dst = output / "prompts"
+    if prompts_src.is_dir():
+        import shutil
+        shutil.rmtree(prompts_dst, ignore_errors=True)
+        shutil.copytree(prompts_src, prompts_dst)
+
+    # Post-process: replace relative prompt paths with plugin-relative paths
+    skill_md = output / "SKILL.md"
+    if skill_md.exists():
+        content = skill_md.read_text()
+        skill_name = runbook.parent.name
+        prefix = f"$PLUGINS/{skill_name}/skills/"
+        content = content.replace("`prompts/", f"`{prefix}prompts/")
+        skill_md.write_text(content)
+
+
+if __name__ == "__main__":
+    main()

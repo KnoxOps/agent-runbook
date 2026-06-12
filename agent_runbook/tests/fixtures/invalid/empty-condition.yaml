@@ -1,0 +1,12 @@
+name: empty-condition-test
+description: Empty condition field
+steps:
+  - id: step1
+    depends_on: []
+    type: inline
+    prompt: Step 1
+  - id: step2
+    type: inline
+    prompt: Step 2
+    condition: ""
+    depends_on: [step1]

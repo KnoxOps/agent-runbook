@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""Merge multiple checkpoint JSONL files, deduplicating by item key.
+
+If the same key appears with "done" status in any file, keeps "done".
+Outputs merge statistics: total items, done count, pending count.
+"""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Merge multiple checkpoint JSONL files"
+    )
+    parser.add_argument(
+        "--inputs",
+        required=True,
+        help="Space-separated list of JSONL files to merge",
+    )
+    parser.add_argument(
+        "--output", required=True, help="Path to output merged JSONL file"
+    )
+
+    args = parser.parse_args()
+
+    # Parse input files
+    input_files = args.inputs.split()
+    if not input_files:
+        print("Error: --inputs must specify at least one file", file=sys.stderr)
+        sys.exit(1)
+
+    # Track merged entries by key
+    merged_entries = {}
+
+    # Read all input files
+    for input_file in input_files:
+        input_path = Path(input_file)
+        if not input_path.exists():
+            print(f"Error: input file not found: {input_file}", file=sys.stderr)
+            sys.exit(1)
+
+        try:
+            with open(input_path) as f:
+                for line_num, line in enumerate(f, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    try:
+                        entry = json.loads(line)
+                    except json.JSONDecodeError as e:
+                        print(
+                            f"Error: invalid JSON in {input_file} line {line_num}: {e}",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+
+                    if "key" not in entry:
+                        print(
+                            f"Error: entry in {input_file} line {line_num} missing 'key' field",
+                            file=sys.stderr,
+                        )
+                        sys.exit(1)
+
+                    key = entry["key"]
+                    status = entry.get("status", "unknown")
+
+                    # Merge logic: prefer "done" status
+                    if key in merged_entries:
+                        existing_status = merged_entries[key].get("status")
+                        if status == "done" and existing_status != "done":
+                            # Upgrade to done
+                            merged_entries[key] = entry
+                    else:
+                        merged_entries[key] = entry
+
+        except IOError as e:
+            print(
+                f"Error: failed to read input file {input_file}: {e}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
+    # Write merged checkpoint
+    output_path = Path(args.output)
+    try:
+        with open(output_path, "w") as f:
+            for entry in merged_entries.values():
+                f.write(json.dumps(entry) + "\n")
+
+    except IOError as e:
+        print(f"Error: failed to write output file: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Calculate stats
+    total_items = len(merged_entries)
+    done_count = sum(
+        1 for e in merged_entries.values() if e.get("status") == "done"
+    )
+    pending_count = total_items - done_count
+
+    # Print stats
+    print(f"Merged {len(input_files)} checkpoint files")
+    print(f"Total items: {total_items}")
+    print(f"Done: {done_count}")
+    print(f"Pending: {pending_count}")
+
+
+if __name__ == "__main__":
+    main()

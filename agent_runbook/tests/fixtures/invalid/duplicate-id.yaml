@@ -1,0 +1,11 @@
+name: duplicate-id-test
+description: Duplicate step IDs
+steps:
+  - id: step1
+    depends_on: []
+    type: inline
+    prompt: First step
+  - id: step1
+    depends_on: []
+    type: inline
+    prompt: Duplicate ID

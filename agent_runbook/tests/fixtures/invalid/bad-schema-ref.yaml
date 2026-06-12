@@ -1,0 +1,9 @@
+name: bad-schema-ref-test
+description: Invalid schema reference
+steps:
+  - id: step1
+    depends_on: []
+    type: inline
+    prompt: Step 1
+    input:
+      - schema: schemas/nonexistent.schema.json

@@ -1,0 +1,24 @@
+name: all-types-test
+description: "Test rendering of all step types: inline, agent, script"
+steps:
+  - id: intro
+    depends_on: []
+    type: inline
+    description: Inline step with embedded prompt
+    prompt: |
+      This is an inline prompt.
+      Do the thing.
+
+  - id: fetch-data
+    depends_on: [intro]
+    type: agent
+    description: Agent step to fetch data
+    prompt: |
+      Fetch data from the API.
+
+  - id: process
+    type: script
+    description: Script step to process data
+    command: echo "processing data"
+    depends_on:
+      - fetch-data

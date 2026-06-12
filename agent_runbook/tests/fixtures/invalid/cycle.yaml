@@ -1,0 +1,15 @@
+name: cycle-test
+description: Cycle in dependencies
+steps:
+  - id: a
+    type: inline
+    prompt: Step A
+    depends_on: [c]
+  - id: b
+    type: inline
+    prompt: Step B
+    depends_on: [a]
+  - id: c
+    type: inline
+    prompt: Step C
+    depends_on: [b]

@@ -1,0 +1,27 @@
+name: branch-test
+description: Test branch detection and rendering
+steps:
+  - id: scan
+    depends_on: []
+    type: inline
+    description: Scan the system
+    prompt: |
+      Scan all resources and collect status.
+
+  - id: healthy
+    type: inline
+    description: Handle healthy resources
+    prompt: |
+      Resources are healthy. No action needed.
+    depends_on:
+      - scan
+    condition: result.status == "healthy"
+
+  - id: unhealthy
+    type: inline
+    description: Handle unhealthy resources
+    prompt: |
+      Resources are unhealthy. Trigger alert.
+    depends_on:
+      - scan
+    condition: result.status == "unhealthy"
