@@ -173,7 +173,7 @@ Active development — API may change.
 
 - [open-devops-skills](https://github.com/KnoxOps/open-devops-skills) — Production-ready DevOps & SRE skills: zombie resource scanning, cost optimization, K8s troubleshooting, and more for Claude Code and Codex.
 
-*Maintained by [KnoxOps](https://knoxops.com).*
+*Maintained by [KnoxOps](https://knoxops.app?invite_token=GITHUB26).*
 
 ## License
 
