@@ -5,7 +5,7 @@
 ```bash
 git clone https://github.com/KnoxOps/agent-runbook.git
 cd agent-runbook
-pip install -e ".[dev]"
+pip install -e "."
 ```
 
 ## Running Tests
