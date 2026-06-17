@@ -56,23 +56,13 @@ cd examples/fix-loop && python3 -m pytest tests/ --tb=short 2>&1 | tail -60
 
 **Execution:** Launch an independent agent with the following prompt file:
 
-Read the pytest output from run_tests.
-Analyze the tracebacks to identify root causes.
-
-CRITICAL: Fix only ONE source file per iteration.
-Some failures are SYMPTOMS of bugs in upstream modules (dependency chain).
-Fix the DEEPEST root cause first — the file whose bug cascades into other modules.
-After fixing one file, tests that depended on it will pass automatically.
-
-Strategy:
-  1. Look for failures that trace back to a shared upstream function
-  2. Fix THAT upstream file, not the downstream callers
-  3. Stop after fixing one file — re-run tests to see which failures clear on their own
+Look at the pytest failures from run_tests.
+Pick ONE source file that has failing tests and fix the bugs in that file.
 
 Rules:
   - Only modify files in src/, NEVER modify test files
-  - Fix exactly ONE file per iteration, then stop
-  - Prefer fixing root causes over symptoms
+  - Fix exactly ONE file, then stop immediately
+  - Do NOT read or modify any other source files
 
 
 ## Goal Evaluation
