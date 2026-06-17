@@ -23,8 +23,10 @@ pip install git+https://github.com/KnoxOps/agent-runbook.git
 
 ## Example
 
+See [`examples/restart-nginx/runbook.yaml`](examples/restart-nginx/runbook.yaml) for a complete example. Here's the structure:
+
 ```yaml
-# restart-nginx.runbook.yaml
+# examples/restart-nginx/runbook.yaml
 name: restart-nginx
 description: SSH into a server, restart Nginx, and verify it's back up
 
@@ -35,31 +37,29 @@ input_params:
 
 steps:
   - id: restart
-    depends_on: []
     type: agent
-    description: SSH in and restart Nginx
     prompt: SSH into {host} and run systemctl restart nginx
     output:
       - file: restart_result.json
-        schema: schemas/restart.schema.json    # ← contract: what I produce
+        schema: schemas/restart.schema.json
 
   - id: verify
     type: agent
-    description: Verify Nginx is healthy
     prompt: curl http://{host}/health and check the status code
     input:
-      - from_step: restart                     # ← contract: where I read from
+      - schema: schemas/restart.schema.json
+        from_step: restart
         file: restart_result.json
     output:
       - file: verify_result.json
-        schema: schemas/verify.schema.json     # ← contract: what I produce
+        schema: schemas/verify.schema.json
     depends_on: [restart]
 ```
 
 Build it:
 
 ```bash
-$ python3 -m agent_runbook generate restart-nginx.runbook.yaml -o .
+$ python3 -m agent_runbook generate examples/restart-nginx/runbook.yaml -o examples/restart-nginx/
 ```
 
 This produces `SKILL.md` — ready for Claude Code or Codex to execute.

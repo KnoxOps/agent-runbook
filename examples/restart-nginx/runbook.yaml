@@ -1,0 +1,31 @@
+name: restart-nginx
+description: SSH into a server, restart Nginx, and verify it's back up
+
+input_params:
+  - name: host
+    type: string
+    required: true
+    description: Target server hostname or IP
+
+steps:
+  - id: restart
+    depends_on: []
+    type: agent
+    description: SSH in and restart Nginx
+    prompt: SSH into {host} and run systemctl restart nginx
+    output:
+      - file: restart_result.json
+        schema: schemas/restart.schema.json
+
+  - id: verify
+    type: agent
+    description: Verify Nginx is healthy
+    prompt: curl http://{host}/health and check the status code
+    input:
+      - schema: schemas/restart.schema.json
+        from_step: restart
+        file: restart_result.json
+    output:
+      - file: verify_result.json
+        schema: schemas/verify.schema.json
+    depends_on: [restart]
