@@ -31,5 +31,8 @@ Issues = "https://github.com/KnoxOps/agent-runbook/issues"
 [project.scripts]
 gen-skill = "agent_runbook.cli:main"
 
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
 [tool.setuptools.packages.find]
 include = ["agent_runbook*"]
