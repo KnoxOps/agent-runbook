@@ -111,7 +111,7 @@ See [`examples/fix-loop/`](examples/fix-loop/) for a working demo: a runbook tha
 ### CLI (generic, zero coupling)
 
 ```bash
-python3 -m agent_runbook generate <runbook.yaml> --output <dir> [--lang zh|en]
+python3 -m agent_runbook generate <runbook.yaml> --output <dir> [--lang en|zh]
 ```
 
 ### Wrapper with directory convention
@@ -120,7 +120,7 @@ Projects should wrap the CLI with their own path convention. For example:
 
 ```bash
 # From repo root — output path auto-derived from convention
-python3 scripts/gen-skill rules/<agent>/<skill>/runbook.yaml --lang zh
+python3 scripts/gen-skill rules/<agent>/<skill>/runbook.yaml --lang en
 ```
 
 **Convention**: `rules/<agent>/<skill>/runbook.yaml` → `skills/<agent>/<skill>/SKILL.md`
