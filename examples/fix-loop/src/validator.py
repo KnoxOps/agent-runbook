@@ -1,6 +1,7 @@
 """Email and input validation utilities."""
 
 import re
+from src import percentage
 
 
 def is_valid_email(email: str) -> bool:
@@ -20,3 +21,8 @@ def is_positive_integer(value: str) -> bool:
 def sanitize_username(username: str) -> str:
     """Sanitize username: lowercase, strip, max 20 chars."""
     return username.lower().strip()[:20]
+
+
+def normalize_score(score: float, max_score: float) -> float:
+    """Normalize a score to a 0-100 scale."""
+    return percentage(score, max_score)

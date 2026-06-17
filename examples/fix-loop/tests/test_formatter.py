@@ -1,7 +1,7 @@
 """Tests for formatter module."""
 
 from datetime import datetime
-from src.formatter import format_date, format_currency, truncate
+from src.formatter import format_date, format_currency, truncate, format_contact
 
 
 class TestFormatDate:
@@ -36,3 +36,14 @@ class TestTruncate:
 
     def test_exact_length(self):
         assert truncate("hello", 5) == "hello"
+
+
+class TestFormatContact:
+    def test_valid_email(self):
+        assert format_contact("Alice", "alice@example.com") == "Alice <alice@example.com>"
+
+    def test_email_with_dots(self):
+        assert format_contact("Bob", "bob.smith@example.com") == "Bob <bob.smith@example.com>"
+
+    def test_invalid_email(self):
+        assert format_contact("Eve", "not-an-email") == "Eve (invalid email)"

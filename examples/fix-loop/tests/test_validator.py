@@ -1,6 +1,11 @@
 """Tests for validator module."""
 
-from src.validator import is_valid_email, is_positive_integer, sanitize_username
+from src.validator import (
+    is_valid_email,
+    is_positive_integer,
+    sanitize_username,
+    normalize_score,
+)
 
 
 class TestIsValidEmail:
@@ -40,3 +45,14 @@ class TestSanitizeUsername:
 
     def test_long_name_truncated(self):
         assert len(sanitize_username("a" * 30)) == 20
+
+
+class TestNormalizeScore:
+    def test_half_score(self):
+        assert normalize_score(50, 200) == 25.0
+
+    def test_full_score(self):
+        assert normalize_score(100, 100) == 100.0
+
+    def test_zero_score(self):
+        assert normalize_score(0, 100) == 0.0

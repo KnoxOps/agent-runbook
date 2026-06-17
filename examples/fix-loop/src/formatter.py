@@ -1,6 +1,7 @@
 """Date and string formatting utilities."""
 
 from datetime import datetime
+from src.validator import is_valid_email
 
 
 def format_date(dt: datetime) -> str:
@@ -18,3 +19,10 @@ def truncate(text: str, max_length: int) -> str:
     if len(text) <= max_length:
         return text
     return text[:max_length] + "..."
+
+
+def format_contact(name: str, email: str) -> str:
+    """Format a contact entry. Shows email in angle brackets if valid."""
+    if is_valid_email(email):
+        return f"{name} <{email}>"
+    return f"{name} (invalid email)"
