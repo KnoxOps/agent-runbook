@@ -61,7 +61,7 @@ def test_compose_includes_frontmatter(basic_runbook):
 
     assert output.startswith("---\n")
     assert "name: test-runbook\n" in output
-    assert "description: Test description\n" in output
+    assert "description: >-\n  Test description\n" in output
     assert output.count("---") >= 2  # Opening and closing frontmatter markers
 
 

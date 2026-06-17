@@ -370,7 +370,7 @@ class TestPromptPathTraversal:
                 {
                     "id": "step1",
                     "type": "agent",
-                    "prompt_file": "../../../etc/passwd",  # path traversal (now allowed)
+                    "prompt_file": "../../nonexistent/prompt.md",  # path traversal (now allowed)
                     "depends_on": [],
                 },
             ],
@@ -598,7 +598,7 @@ class TestSchemaPathTraversal:
                     "depends_on": [],
                     "input": [
                         {
-                            "schema": "../../../etc/passwd",  # path traversal (now allowed)
+                            "schema": "../../nonexistent/file.json",  # path traversal (now allowed), file not found
                         }
                     ],
                 },
@@ -630,7 +630,7 @@ class TestSchemaPathTraversal:
                     "depends_on": [],
                     "output": [
                         {
-                            "schema": "../../../etc/passwd",  # path traversal (now allowed)
+                            "schema": "../../nonexistent/file.json",  # path traversal (now allowed), file not found
                             "file": "output.json",
                         }
                     ],
