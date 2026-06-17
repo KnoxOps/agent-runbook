@@ -1,0 +1,47 @@
+name: fix-failing-tests
+description: Iteratively fix all failing tests until the test suite is green
+
+steps:
+  - id: fix_loop
+    type: loop
+    description: "Run tests, analyze failures, fix source code, repeat until green"
+    goal: "pytest exits with 0 failures (all tests pass)"
+    max_iterations: 10
+    depends_on: []
+    body:
+      - id: run_tests
+        type: script
+        command: "cd examples/fix-loop && python3 -m pytest tests/ --tb=short 2>&1 | tail -60"
+        depends_on: []
+      - id: fix
+        type: agent
+        prompt: |
+          Read the pytest output from run_tests.
+          Identify the root cause of the failures.
+
+          CRITICAL CONSTRAINT: Fix ONLY ONE source file per iteration.
+          Do NOT fix multiple files at once. Pick the file with the most failures
+          and fix only that file. Leave other files for subsequent iterations.
+
+          Rules:
+            - Only modify files in src/, NEVER modify test files
+            - Fix exactly ONE file, then stop
+            - Address the root cause shown in the traceback, not symptoms
+        depends_on: [run_tests]
+        quality_check:
+          blocking: true
+          rules:
+            - "Only files in src/ were modified, not test files"
+            - "The fix addresses the actual root cause shown in the traceback"
+
+  - id: present
+    type: inline
+    prompt: |
+      Generate a markdown report summarizing the fix loop results.
+      Include:
+        - Total iterations taken
+        - What was fixed in each iteration (file + bug description)
+        - Final test results
+        - Any observations about the cascading nature of the fixes
+      Write the report to fix_report.md
+    depends_on: [fix_loop]

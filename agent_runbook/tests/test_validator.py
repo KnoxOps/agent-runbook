@@ -711,3 +711,176 @@ class TestEmptyRunbook:
             assert errors == []
         finally:
             path.unlink(missing_ok=True)
+
+
+class TestLoopStepValidation:
+    """Test 18: Loop step validation rules."""
+
+    def _make_loop_runbook(self, loop_step_overrides: dict) -> dict:
+        """Helper to build a runbook dict with a loop step."""
+        loop_step = {
+            "id": "my_loop",
+            "type": "loop",
+            "goal": "All tests pass",
+            "max_iterations": 5,
+            "depends_on": [],
+            "body": [
+                {
+                    "id": "work",
+                    "type": "inline",
+                    "prompt": "Do work",
+                    "depends_on": [],
+                },
+            ],
+        }
+        loop_step.update(loop_step_overrides)
+        return {
+            "name": "test",
+            "description": "desc",
+            "steps": [loop_step],
+        }
+
+    def test_valid_loop_passes(self):
+        """A well-formed loop step should pass validation."""
+        data = self._make_loop_runbook({})
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            error_errors = [e for e in errors if e.level == "ERROR"]
+            assert error_errors == []
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_whitespace_goal_raises_error(self):
+        """Loop step with whitespace-only goal should produce ERROR."""
+        data = self._make_loop_runbook({"goal": "   "})
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            error_errors = [e for e in errors if e.level == "ERROR"]
+            assert len(error_errors) == 1
+            assert "goal" in error_errors[0].message.lower()
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_max_iterations_zero_raises_error(self):
+        """Loop step with max_iterations=0 should produce ERROR."""
+        data = self._make_loop_runbook({"max_iterations": 0})
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            error_errors = [e for e in errors if e.level == "ERROR"]
+            assert len(error_errors) == 1
+            assert "max_iterations" in error_errors[0].message
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_max_iterations_negative_raises_error(self):
+        """Loop step with max_iterations=-1 should produce ERROR."""
+        data = self._make_loop_runbook({"max_iterations": -1})
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            error_errors = [e for e in errors if e.level == "ERROR"]
+            assert len(error_errors) == 1
+            assert "max_iterations" in error_errors[0].message
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_max_iterations_over_50_warns(self):
+        """Loop step with max_iterations > 50 should produce WARN."""
+        data = self._make_loop_runbook({"max_iterations": 100})
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            warns = [e for e in errors if e.level == "WARN"]
+            assert any("max_iterations" in w.message for w in warns)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_body_cycle_raises_error(self):
+        """Loop body with cyclic depends_on should produce ERROR."""
+        data = self._make_loop_runbook({
+            "body": [
+                {
+                    "id": "a",
+                    "type": "inline",
+                    "prompt": "Step A",
+                    "depends_on": ["b"],
+                },
+                {
+                    "id": "b",
+                    "type": "inline",
+                    "prompt": "Step B",
+                    "depends_on": ["a"],
+                },
+            ],
+        })
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            error_errors = [e for e in errors if e.level == "ERROR"]
+            assert any("cycle" in e.message.lower() for e in error_errors)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_body_duplicate_ids_raises_error(self):
+        """Loop body with duplicate step IDs should produce ERROR."""
+        data = self._make_loop_runbook({
+            "body": [
+                {
+                    "id": "work",
+                    "type": "inline",
+                    "prompt": "First",
+                    "depends_on": [],
+                },
+                {
+                    "id": "work",
+                    "type": "inline",
+                    "prompt": "Duplicate",
+                    "depends_on": [],
+                },
+            ],
+        })
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            runbook = Runbook.from_yaml(path)
+            validator = RunbookValidator(runbook, str(path.parent))
+            errors = validator.validate()
+            error_errors = [e for e in errors if e.level == "ERROR"]
+            assert any("duplicate" in e.message.lower() for e in error_errors)
+        finally:
+            path.unlink(missing_ok=True)

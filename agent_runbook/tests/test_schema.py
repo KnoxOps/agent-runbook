@@ -376,3 +376,220 @@ class TestErrorHandling:
             assert result.error_handling[1].handling == "Return HIL signal mcp_unavailable"
         finally:
             path.unlink(missing_ok=True)
+
+
+class TestLoopStepType:
+    """Step 9: Loop step type parsing."""
+
+    def test_parse_loop_step(self):
+        """A loop step with goal, max_iterations, and body should parse correctly."""
+        from agent_runbook.schema import Runbook, StepType
+
+        data = {
+            "name": "test-loop",
+            "description": "Test loop runbook",
+            "steps": [
+                {
+                    "id": "setup",
+                    "type": "inline",
+                    "prompt": "Initialize",
+                    "depends_on": [],
+                },
+                {
+                    "id": "fix_loop",
+                    "type": "loop",
+                    "description": "Fix all errors",
+                    "goal": "All tests pass",
+                    "max_iterations": 5,
+                    "depends_on": ["setup"],
+                    "body": [
+                        {
+                            "id": "discover",
+                            "type": "inline",
+                            "prompt": "Find errors",
+                            "depends_on": [],
+                        },
+                        {
+                            "id": "fix",
+                            "type": "agent",
+                            "prompt": "Fix errors",
+                            "depends_on": ["discover"],
+                        },
+                    ],
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            result = Runbook.from_yaml(path)
+            loop_step = result.steps[1]
+            assert loop_step.id == "fix_loop"
+            assert loop_step.type == StepType.LOOP
+            assert loop_step.goal == "All tests pass"
+            assert loop_step.max_iterations == 5
+            assert loop_step.body is not None
+            assert len(loop_step.body) == 2
+            assert loop_step.body[0].id == "discover"
+            assert loop_step.body[1].id == "fix"
+            assert loop_step.body[1].depends_on == ["discover"]
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_loop_default_max_iterations(self):
+        """Loop step without explicit max_iterations should default to 10."""
+        from agent_runbook.schema import Runbook
+
+        data = {
+            "name": "test",
+            "description": "desc",
+            "steps": [
+                {
+                    "id": "my_loop",
+                    "type": "loop",
+                    "goal": "Done",
+                    "depends_on": [],
+                    "body": [
+                        {
+                            "id": "work",
+                            "type": "inline",
+                            "prompt": "Do work",
+                            "depends_on": [],
+                        },
+                    ],
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            result = Runbook.from_yaml(path)
+            assert result.steps[0].max_iterations == 10
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_loop_without_goal_raises(self):
+        """Loop step without goal should raise ValidationError."""
+        from agent_runbook.schema import Runbook
+
+        data = {
+            "name": "test",
+            "description": "desc",
+            "steps": [
+                {
+                    "id": "my_loop",
+                    "type": "loop",
+                    "depends_on": [],
+                    "body": [
+                        {
+                            "id": "work",
+                            "type": "inline",
+                            "prompt": "Do work",
+                            "depends_on": [],
+                        },
+                    ],
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            with pytest.raises(ValidationError):
+                Runbook.from_yaml(path)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_loop_without_body_raises(self):
+        """Loop step without body should raise ValidationError."""
+        from agent_runbook.schema import Runbook
+
+        data = {
+            "name": "test",
+            "description": "desc",
+            "steps": [
+                {
+                    "id": "my_loop",
+                    "type": "loop",
+                    "goal": "All done",
+                    "depends_on": [],
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            with pytest.raises(ValidationError):
+                Runbook.from_yaml(path)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_loop_with_empty_body_raises(self):
+        """Loop step with empty body list should raise ValidationError."""
+        from agent_runbook.schema import Runbook
+
+        data = {
+            "name": "test",
+            "description": "desc",
+            "steps": [
+                {
+                    "id": "my_loop",
+                    "type": "loop",
+                    "goal": "All done",
+                    "depends_on": [],
+                    "body": [],
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            with pytest.raises(ValidationError):
+                Runbook.from_yaml(path)
+        finally:
+            path.unlink(missing_ok=True)
+
+    def test_loop_does_not_require_prompt(self):
+        """Loop step should NOT require prompt or prompt_file."""
+        from agent_runbook.schema import Runbook, StepType
+
+        data = {
+            "name": "test",
+            "description": "desc",
+            "steps": [
+                {
+                    "id": "my_loop",
+                    "type": "loop",
+                    "goal": "Done",
+                    "depends_on": [],
+                    "body": [
+                        {
+                            "id": "work",
+                            "type": "inline",
+                            "prompt": "Do it",
+                            "depends_on": [],
+                        },
+                    ],
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
+            yaml.dump(data, f)
+            path = Path(f.name)
+
+        try:
+            result = Runbook.from_yaml(path)
+            assert result.steps[0].type == StepType.LOOP
+            assert result.steps[0].prompt is None
+            assert result.steps[0].prompt_file is None
+        finally:
+            path.unlink(missing_ok=True)

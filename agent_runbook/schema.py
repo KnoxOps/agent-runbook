@@ -14,6 +14,7 @@ class StepType(str, Enum):
     INLINE = "inline"
     AGENT = "agent"
     SCRIPT = "script"
+    LOOP = "loop"
 
 
 class InputParam(BaseModel):
@@ -88,6 +89,9 @@ class Step(BaseModel):
     checkpoint: Optional[str] = None
     condition: Optional[str] = None
     quality_check: Optional[QualityCheckConfig] = None
+    goal: Optional[str] = None  # Required for loop
+    max_iterations: int = 10  # Safety bound for loop
+    body: Optional[list["Step"]] = None  # Sub-steps for loop
 
     @model_validator(mode="after")
     def validate_step_type_requirements(self) -> "Step":
@@ -95,7 +99,18 @@ class Step(BaseModel):
 
         For inline and agent steps: exactly one of prompt or prompt_file must be set.
         For script steps: command is required.
+        For loop steps: goal and non-empty body are required.
         """
+        if self.type == StepType.LOOP:
+            if not self.goal:
+                raise ValueError(
+                    f"Step '{self.id}': goal is required for loop steps"
+                )
+            if not self.body:
+                raise ValueError(
+                    f"Step '{self.id}': body is required for loop steps"
+                )
+            return self
         if self.type != StepType.SCRIPT:
             # Either prompt or prompt_file must be set, but not both
             if self.prompt is None and self.prompt_file is None:

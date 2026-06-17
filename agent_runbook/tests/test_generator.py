@@ -161,3 +161,56 @@ class TestGenerateParallelSteps:
             # Should have a note about parallel execution
             assert "must run in parallel" in content
             assert "Step 2" in content and "Step 3" in content and "Step 4" in content
+
+
+class TestGenerateLoopStep:
+    """Fixture with loop step -> output has loop structure."""
+
+    def test_generate_loop_creates_skill_md(self):
+        """Loop fixture should generate SKILL.md successfully."""
+        runbook_path = FIXTURES_DIR / "loop" / "runbook.yaml"
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            generator = Generator(default_registry(), Composer())
+            result = generator.generate(str(runbook_path), output_dir)
+
+            skill_md = Path(output_dir) / "SKILL.md"
+            assert skill_md.exists()
+            content = skill_md.read_text()
+            assert "fix-lint-errors" in content
+
+    def test_generate_loop_contains_goal(self):
+        """Generated SKILL.md should contain the loop goal."""
+        runbook_path = FIXTURES_DIR / "loop" / "runbook.yaml"
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            generator = Generator(default_registry(), Composer())
+            result = generator.generate(str(runbook_path), output_dir)
+
+            content = Path(output_dir, "SKILL.md").read_text()
+            assert "ESLint passes with zero errors on all files" in content
+
+    def test_generate_loop_contains_body_steps(self):
+        """Generated SKILL.md should contain the loop body step content."""
+        runbook_path = FIXTURES_DIR / "loop" / "runbook.yaml"
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            generator = Generator(default_registry(), Composer())
+            result = generator.generate(str(runbook_path), output_dir)
+
+            content = Path(output_dir, "SKILL.md").read_text()
+            assert "discover" in content
+            assert "fix" in content
+            assert "verify" in content
+
+    def test_generate_loop_contains_iteration_logic(self):
+        """Generated SKILL.md should contain iteration/goal evaluation logic."""
+        runbook_path = FIXTURES_DIR / "loop" / "runbook.yaml"
+
+        with tempfile.TemporaryDirectory() as output_dir:
+            generator = Generator(default_registry(), Composer())
+            result = generator.generate(str(runbook_path), output_dir)
+
+            content = Path(output_dir, "SKILL.md").read_text()
+            assert "iteration" in content.lower()
+            assert "10" in content  # max_iterations

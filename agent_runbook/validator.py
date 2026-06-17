@@ -81,6 +81,9 @@ class RunbookValidator:
         # Check 12: quality_check config validity
         errors.extend(self._check_quality_check_config())
 
+        # Check 13: Loop step validation
+        errors.extend(self._check_loop_steps())
+
         return errors
 
     def _check_duplicate_step_ids(self) -> list[ValidationError]:
@@ -279,6 +282,65 @@ class RunbookValidator:
                         ),
                     )
                 )
+        return errors
+
+    def _check_loop_steps(self) -> list[ValidationError]:
+        """Check loop step constraints: goal, max_iterations, body DAG."""
+        errors: list[ValidationError] = []
+        for step in self.runbook.steps:
+            if step.type != StepType.LOOP:
+                continue
+
+            # Goal must not be whitespace-only
+            if step.goal is not None and not step.goal.strip():
+                errors.append(
+                    ValidationError(
+                        level="ERROR",
+                        message=f"Step '{step.id}': loop goal cannot be empty or whitespace-only",
+                    )
+                )
+
+            # max_iterations must be >= 1
+            if step.max_iterations < 1:
+                errors.append(
+                    ValidationError(
+                        level="ERROR",
+                        message=f"Step '{step.id}': max_iterations must be >= 1, got {step.max_iterations}",
+                    )
+                )
+            elif step.max_iterations > 50:
+                errors.append(
+                    ValidationError(
+                        level="WARN",
+                        message=f"Step '{step.id}': max_iterations={step.max_iterations} is unusually high (>50)",
+                    )
+                )
+
+            # Validate body sub-steps
+            if step.body:
+                # Duplicate IDs in body
+                seen_ids: set[str] = set()
+                for body_step in step.body:
+                    if body_step.id in seen_ids:
+                        errors.append(
+                            ValidationError(
+                                level="ERROR",
+                                message=f"Step '{step.id}': duplicate body step ID: '{body_step.id}'",
+                            )
+                        )
+                    seen_ids.add(body_step.id)
+
+                # Cycle detection in body
+                try:
+                    topological_sort(step.body)
+                except CycleDetectedError as e:
+                    errors.append(
+                        ValidationError(
+                            level="ERROR",
+                            message=f"Step '{step.id}': cycle in loop body: {', '.join(e.cycle_members)}",
+                        )
+                    )
+
         return errors
 
     def _check_orphan_steps(self) -> list[ValidationError]:

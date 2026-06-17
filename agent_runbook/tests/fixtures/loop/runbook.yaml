@@ -1,0 +1,33 @@
+name: fix-lint-errors
+description: Set up, iteratively fix lint errors, then report
+
+steps:
+  - id: setup
+    type: inline
+    prompt: "Install dependencies and configure eslint"
+    depends_on: []
+
+  - id: fix_loop
+    type: loop
+    description: "Iteratively fix all lint errors"
+    goal: "ESLint passes with zero errors on all files"
+    max_iterations: 10
+    depends_on: [setup]
+    body:
+      - id: discover
+        type: inline
+        prompt: "Run eslint, write errors to discover_result.json"
+        depends_on: []
+      - id: fix
+        type: inline
+        prompt: "Pick a batch of errors and fix them"
+        depends_on: [discover]
+      - id: verify
+        type: inline
+        prompt: "Run eslint again, check remaining errors"
+        depends_on: [fix]
+
+  - id: report
+    type: inline
+    prompt: "Generate a summary of all fixes made"
+    depends_on: [fix_loop]

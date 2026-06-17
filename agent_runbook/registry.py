@@ -7,6 +7,7 @@ from agent_runbook.strategies.agent import AgentStepStrategy
 from agent_runbook.strategies.base import StepStrategy
 from agent_runbook.strategies.checkpoint import CheckpointScriptStrategy
 from agent_runbook.strategies.inline import InlineStepStrategy
+from agent_runbook.strategies.loop import LoopStepStrategy
 from agent_runbook.strategies.script import ScriptStepStrategy
 
 
@@ -57,6 +58,8 @@ class StrategyRegistry:
             strategies.append(self._strategies[AgentStepStrategy])
         elif step.type == StepType.SCRIPT:
             strategies.append(self._strategies[ScriptStepStrategy])
+        elif step.type == StepType.LOOP:
+            strategies.append(self._strategies[LoopStepStrategy])
 
         # Add checkpoint strategy if step has a checkpoint
         if step.checkpoint and CheckpointScriptStrategy in self._strategies:
@@ -82,5 +85,6 @@ def default_registry() -> StrategyRegistry:
     registry.register(InlineStepStrategy())
     registry.register(AgentStepStrategy())
     registry.register(ScriptStepStrategy())
+    registry.register(LoopStepStrategy())
     registry.register(CheckpointScriptStrategy())
     return registry
