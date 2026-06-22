@@ -23,7 +23,7 @@ pip install git+https://github.com/KnoxOps/agent-runbook.git
 
 ## Example
 
-See [`examples/restart-nginx/runbook.yaml`](examples/restart-nginx/runbook.yaml) for a complete example. Here's the structure:
+See [`examples/restart-nginx/runbook.yaml`](examples/restart-nginx/runbook.yaml) for a complete example. The [`examples/hermes-tweet-approval/runbook.yaml`](examples/hermes-tweet-approval/runbook.yaml) example shows a Hermes Agent plugin workflow with read-first social context and an explicit approval packet before any X/Twitter action.
 
 ```yaml
 # examples/restart-nginx/runbook.yaml
