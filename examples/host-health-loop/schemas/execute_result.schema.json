@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["status"],
+  "properties": {
+    "status": { "type": "string", "enum": ["success", "failed", "skipped", "all_done"] },
+    "host": { "type": "string" },
+    "action": { "type": "string" },
+    "output": { "type": "string" },
+    "reason": { "type": "string" }
+  }
+}

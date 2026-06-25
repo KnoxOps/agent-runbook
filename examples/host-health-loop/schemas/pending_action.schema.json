@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "oneOf": [
+    {
+      "required": ["host", "issue", "risk", "commands", "expected_result"],
+      "properties": {
+        "host": { "type": "string" },
+        "ip": { "type": "string" },
+        "issue": { "type": "string" },
+        "category": { "type": "string" },
+        "risk": { "type": "string", "enum": ["low", "medium", "high"] },
+        "commands": { "type": "array", "items": { "type": "string" } },
+        "expected_result": { "type": "string" }
+      }
+    },
+    {
+      "required": ["done"],
+      "properties": { "done": { "type": "boolean" } }
+    }
+  ]
+}

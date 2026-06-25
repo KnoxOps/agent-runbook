@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "oneOf": [
+    {
+      "required": ["host", "ip", "severity", "category", "detail", "suggested_action"],
+      "properties": {
+        "host": { "type": "string" },
+        "ip": { "type": "string" },
+        "severity": { "type": "string" },
+        "category": { "type": "string" },
+        "detail": { "type": "string" },
+        "suggested_action": { "type": "string" }
+      }
+    },
+    {
+      "required": ["done"],
+      "properties": {
+        "done": { "type": "boolean" }
+      }
+    }
+  ]
+}

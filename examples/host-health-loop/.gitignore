@@ -1,0 +1,13 @@
+# Claude Code workspace config (do not commit)
+.claude/
+
+# Runtime artifacts from runbook execution
+approved_action.json
+execute_result.json
+fix_history.json
+/host_issues.json
+pending_action.json
+selected_issue.json
+
+# Generated reports
+health_report.html
