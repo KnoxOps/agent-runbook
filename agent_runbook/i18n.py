@@ -19,6 +19,19 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "Output Files",
         "schema_label": "Schema:",
         "file_label": "File:",
+        "output_schema_instruction": (
+            "Before writing output, Read each schema file listed below and "
+            "produce output that STRICTLY conforms to it: use the exact field "
+            "names, include all required fields, and do not add fields not "
+            "defined in the schema. Output that violates the schema will be "
+            "rejected by downstream validation."
+        ),
+        "validate_command": (
+            "After writing, validate the output against the schema by running: "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "If validation fails, fix the output to match the schema exactly "
+            "and re-run until it passes. Do not proceed until validation succeeds."
+        ),
         "follow_instructions": "Follow these instructions:",
         "launch_agent": "Launch an independent agent with the following prompt file:",
         "dispatch_instruction": "Dispatch instruction:",
@@ -91,6 +104,17 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "输出文件",
         "schema_label": "Schema:",
         "file_label": "文件:",
+        "output_schema_instruction": (
+            "写出产出前，先 Read 下方列出的每个 schema 文件，产出必须严格符合 schema："
+            "使用精确的字段名、包含所有 required 字段、不得添加 schema 未定义的字段。"
+            "违反 schema 的产出会被下游校验拒绝。"
+        ),
+        "validate_command": (
+            "写出后，运行校验确认产出符合 schema："
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`。"
+            "若校验失败，修正产出使其严格符合 schema，重新运行直到通过。"
+            "校验通过前不得继续下一步。"
+        ),
         "follow_instructions": "按以下指令处理:",
         "launch_agent": "启动独立 agent，以以下文件为 prompt:",
         "dispatch_instruction": "分派指令:",
@@ -163,6 +187,17 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "出力ファイル",
         "schema_label": "スキーマ:",
         "file_label": "ファイル:",
+        "output_schema_instruction": (
+            "出力を書き出す前に、下記の各スキーマファイルを Read し、スキーマに厳密に従った出力を生成してください："
+            "正確なフィールド名を使用し、必須フィールドをすべて含め、スキーマ未定義のフィールドを追加しないでください。"
+            "スキーマ違反の出力は下流の検証で拒否されます。"
+        ),
+        "validate_command": (
+            "出力書き込み後、スキーマに対して検証を実行してください： "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`。 "
+            "検証失敗時は出力をスキーマに厳密一致するよう修正し、通過するまで再実行してください。 "
+            "検証成功まで次のステップに進まないでください。"
+        ),
         "follow_instructions": "次の手順に従ってください:",
         "launch_agent": "次のプロンプトファイルで独立エージェントを起動:",
         "dispatch_instruction": "ディスパッチ指示:",
@@ -235,6 +270,17 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "출력 파일",
         "schema_label": "스키마:",
         "file_label": "파일:",
+        "output_schema_instruction": (
+            "출력을 작성하기 전에 아래 나열된 각 스키마 파일을 Read 하고, 스키마를 엄격하게 준수하는 출력을 생성하세요: "
+            "정확한 필드 이름을 사용하고, 모든 필수 필드를 포함하며, 스키마에 정의되지 않은 필드를 추가하지 마세요. "
+            "스키마를 위반한 출력은 다운스트림 검증에서 거부됩니다."
+        ),
+        "validate_command": (
+            "출력 작성 후, 스키마에 대해 검증을 실행하세요: "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "검증 실패 시 출력을 스키마에 엄격히 일치하도록 수정하고, 통과할 때까지 재실행하세요. "
+            "검증이 성공할 때까지 다음 단계로 진행하지 마세요."
+        ),
         "follow_instructions": "다음 지침을 따르세요:",
         "launch_agent": "다음 프롬프트 파일로 독립 에이전트 실행:",
         "dispatch_instruction": "디스패치 지침:",
@@ -307,6 +353,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "Archivos de Salida",
         "schema_label": "Esquema:",
         "file_label": "Archivo:",
+        "output_schema_instruction": (
+            "Antes de escribir la salida, Read cada archivo de esquema listado abajo y "
+            "produzca una salida que se ajuste ESTRICTAMENTE al esquema: use los nombres de campo exactos, "
+            "incluya todos los campos requeridos y no agregue campos no definidos en el esquema. "
+            "La salida que viole el esquema será rechazada por la validación posterior."
+        ),
+        "validate_command": (
+            "Después de escribir, valide la salida contra el esquema ejecutando: "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "Si la validación falla, corrija la salida para que coincida exactamente con el esquema "
+            "y vuelva a ejecutar hasta que pase. No continúe hasta que la validación tenga éxito."
+        ),
         "follow_instructions": "Siga estas instrucciones:",
         "launch_agent": "Inicie un agente independiente con el siguiente archivo de prompt:",
         "dispatch_instruction": "Instrucción de despacho:",
@@ -379,6 +437,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "Arquivos de Saída",
         "schema_label": "Esquema:",
         "file_label": "Arquivo:",
+        "output_schema_instruction": (
+            "Antes de escrever a saída, Read cada arquivo de esquema listado abaixo e "
+            "produza uma saída que esteja em CONFORMIDADE ESTRITA com o esquema: use os nomes de campo exatos, "
+            "inclua todos os campos obrigatórios e não adicione campos não definidos no esquema. "
+            "A saída que violar o esquema será rejeitada pela validação posterior."
+        ),
+        "validate_command": (
+            "Após escrever, valide a saída contra o esquema executando: "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "Se a validação falhar, corrija a saída para corresponder exatamente ao esquema "
+            "e execute novamente até passar. Não prossiga até que a validação seja bem-sucedida."
+        ),
         "follow_instructions": "Siga estas instruções:",
         "launch_agent": "Inicie um agente independente com o seguinte arquivo de prompt:",
         "dispatch_instruction": "Instrução de despacho:",
@@ -451,6 +521,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "Fichiers de Sortie",
         "schema_label": "Schéma :",
         "file_label": "Fichier :",
+        "output_schema_instruction": (
+            "Avant d'écrire la sortie, Read chaque fichier de schéma listé ci-dessous et "
+            "produisez une sortie qui respecte STRICTEMENT le schéma : utilisez les noms de champ exacts, "
+            "incluez tous les champs obligatoires et n'ajoutez pas de champs non définis dans le schéma. "
+            "Une sortie qui viole le schéma sera rejetée par la validation en aval."
+        ),
+        "validate_command": (
+            "Après l'écriture, validez la sortie par rapport au schéma en exécutant : "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "Si la validation échoue, corrigez la sortie pour qu'elle corresponde exactement au schéma "
+            "et réexécutez jusqu'à ce qu'elle passe. Ne continuez pas tant que la validation réussit."
+        ),
         "follow_instructions": "Suivez ces instructions :",
         "launch_agent": "Lancez un agent indépendant avec le fichier de prompt suivant :",
         "dispatch_instruction": "Instruction de répartition :",
@@ -523,6 +605,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "Ausgabedateien",
         "schema_label": "Schema:",
         "file_label": "Datei:",
+        "output_schema_instruction": (
+            "Lesen Sie vor dem Schreiben der Ausgabe jede unten aufgeführte Schemadatei und "
+            "erzeugen Sie eine Ausgabe, die STRICT dem Schema entspricht: verwenden Sie die genauen Feldnamen, "
+            "schließen Sie alle Pflichtfelder ein und fügen Sie keine im Schema nicht definierten Felder hinzu. "
+            "Ausgaben, die gegen das Schema verstoßen, werden von der nachgelagerten Validierung abgelehnt."
+        ),
+        "validate_command": (
+            "Validieren Sie nach dem Schreiben die Ausgabe gegen das Schema durch Ausführen von: "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "Wenn die Validierung fehlschlägt, korrigieren Sie die Ausgabe, damit sie genau dem Schema entspricht, "
+            "und führen Sie sie erneut aus, bis sie besteht. Fahren Sie erst fort, wenn die Validierung erfolgreich ist."
+        ),
         "follow_instructions": "Befolgen Sie diese Anweisungen:",
         "launch_agent": "Starten Sie einen unabhängigen Agenten mit der folgenden Prompt-Datei:",
         "dispatch_instruction": "Dispatch-Anweisung:",
@@ -595,6 +689,18 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
         "output_files": "Выходные Файлы",
         "schema_label": "Схема:",
         "file_label": "Файл:",
+        "output_schema_instruction": (
+            "Перед записью вывода Read каждый файл схемы, указанный ниже, и "
+            "создайте вывод, СТРОГО соответствующий схеме: используйте точные имена полей, "
+            "включите все обязательные поля и не добавляйте поля, не определённые в схеме. "
+            "Вывод, нарушающий схему, будет отклонён последующей валидацией."
+        ),
+        "validate_command": (
+            "После записи проверьте вывод по схеме, выполнив: "
+            "`python3 scripts/validate_schema.py {file} {schema} --strict`. "
+            "Если проверка не пройдена, исправьте вывод, чтобы он точно соответствовал схеме, "
+            "и повторяйте, пока не пройдёт. Не продолжайте, пока проверка не увенчается успехом."
+        ),
         "follow_instructions": "Следуйте этим инструкциям:",
         "launch_agent": "Запустите независимого агента со следующим файлом промпта:",
         "dispatch_instruction": "Инструкция по отправке:",

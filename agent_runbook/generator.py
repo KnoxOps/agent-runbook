@@ -1,5 +1,6 @@
 """Generator: orchestrates the full flow from YAML runbook to SKILL.md and scripts."""
 
+import shutil
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -13,6 +14,9 @@ from agent_runbook.strategies.branch import BranchingStrategy
 from agent_runbook.strategies.checkpoint import CheckpointScript, CheckpointScriptStrategy
 from agent_runbook.strategies.parallel import ParallelStepStrategy
 from agent_runbook.validator import RunbookValidator, ValidationError
+
+# Bundled schema validator script (stdlib only, vendored for agent runtime use).
+VALIDATE_SCHEMA_SCRIPT = Path(__file__).parent / "templates" / "scripts" / "validate_schema.py"
 
 
 @dataclass
@@ -190,10 +194,31 @@ class Generator:
                 script_file.write_text(script.content, encoding="utf-8")
                 script_paths.append(str(script_file))
 
+        # 10b. Bundle the schema validator if any step has an output schema.
+        # The validator is referenced by the "validate output" instructions
+        # injected into each step's output section.
+        if self._has_output_schemas(runbook) and VALIDATE_SCHEMA_SCRIPT.exists():
+            scripts_dir = output_dir / "scripts"
+            scripts_dir.mkdir(parents=True, exist_ok=True)
+            validator_path = scripts_dir / "validate_schema.py"
+            shutil.copy2(VALIDATE_SCHEMA_SCRIPT, validator_path)
+            script_paths.append(str(validator_path))
+
         return GeneratedOutput(
             skill_path=str(skill_path),
             scripts=script_paths,
         )
+
+    @staticmethod
+    def _has_output_schemas(runbook: Runbook) -> bool:
+        """Return True if any step (including loop body steps) has output schemas."""
+        def _step_has(step: Step) -> bool:
+            if step.output:
+                return True
+            if step.body:
+                return any(_step_has(s) for s in step.body)
+            return False
+        return any(_step_has(s) for s in runbook.steps)
 
     def _render_step(
         self,

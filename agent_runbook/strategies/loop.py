@@ -174,8 +174,12 @@ class LoopStepStrategy(StepStrategy):
         if not step.output:
             return ""
         lines = [f"**{t('output_files', lang)}**"]
+        lines.append("")
+        lines.append(t("output_schema_instruction", lang))
+        lines.append("")
         for output_def in step.output:
             lines.append(f"- `{output_def.file}` (schema: {output_def.schema})")
+            lines.append(f"  - {t('validate_command', lang, file=output_def.file, schema=output_def.schema)}")
         lines.append("")
         return "\n".join(lines)
 

@@ -144,7 +144,9 @@ class StepStrategy(ABC):
     def _render_output(self, step: Step, ctx: RenderContext) -> str:
         """Render the output section.
 
-        Only rendered if the step has outputs.
+        Only rendered if the step has outputs. Instructs the agent to read the
+        schema file first and produce output that strictly conforms to it
+        (exact field names, required fields, no extra fields).
 
         Args:
             step: The step to render.
@@ -157,9 +159,13 @@ class StepStrategy(ABC):
             return ""
 
         lines = ["## Output"]
+        lines.append("")
+        lines.append(t("output_schema_instruction", ctx.lang))
+        lines.append("")
         for output_def in step.output:
             lines.append(f"- **{t('schema_label', ctx.lang)}** {output_def.schema}")
             lines.append(f"  - **{t('file_label', ctx.lang)}** {output_def.file}")
+            lines.append(f"  - {t('validate_command', ctx.lang, file=output_def.file, schema=output_def.schema)}")
 
         return "\n".join(lines)
 
